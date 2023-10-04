@@ -1,0 +1,5 @@
+Minikube command: 
+
+minikube addons -p vlcluster enable ingress 
+
+minikube start -p vlcluster -n 2 --container-runtime=containerd

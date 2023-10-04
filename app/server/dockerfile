@@ -1,0 +1,15 @@
+FROM ruby:3.1.2
+WORKDIR /server
+COPY . . 
+ENV BUNDLE_PATH /gems
+ENV DB_HOST 0.0.0.0
+ENV DB_NAME vldb
+ENV DB_USERNAME vendorlist
+ENV DB_PASSWORD password
+RUN bundle install
+CMD sh startup.sh
+EXPOSE 3000
+
+# CMD for command in db:migrate db:seed s; do 
+#   bin/rails $command 
+# done 

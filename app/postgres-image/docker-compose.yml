@@ -1,0 +1,31 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    container_name: postgress-db
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/data
+    command: "postgres -c 'max_connections=500'"
+    environment:
+      POSTGRES_DB: vldb
+      POSTGRES_USER: vendorlist
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+  vendorlist:
+    image: ccdaniele/vl-server:v1.0.0
+    command: "sleep 300" 
+    environment:
+      DB_HOST: db
+      DB_NAME: vldb
+      DB_USERNAME: vendorlist
+      DB_PASSWORD: password
+    # volumes:
+    #   - .:/app:cached
+    depends_on:
+      - db
+# volumes:
+#   postgres_data: {}
+networks:
+  default:
+    name: vl_default

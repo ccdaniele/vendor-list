@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vlclient
+  labels:
+    app.kubernetes.io/name: "vendorlist"
+    app.kubernetes.io/instance: "vl-instance"
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "vlclient-deploy"
+    app.kubernetes.io/part-of: "vlclient"
+    tags.datadoghq.com/env: "dev"
+    tags.datadoghq.com/service: "vlclient"
+    tags.datadoghq.com/version: "1.0"
+
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/service: vlclient
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "vlclient-pod"
+        app.kubernetes.io/component: "vl-pod"
+        app.kubernetes.io/service: "vlclient"
+        admission.datadoghq.com/enabled: "true"
+        tags.datadoghq.com/env: "dev"
+        tags.datadoghq.com/service: "vlclient"
+        tags.datadoghq.com/version: "2.0"
+      annotations:
+        admission.datadoghq.com/js-lib.version: "v4.14.0"
+    spec:
+      containers:
+      # next js client container
+      - name: client
+        image: ccdaniele/vl-client:v1.0.1_env_variables
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3002
+        # resources:
+        #   limits:
+        #     cpu: '1000m'
+        #     memory: '1Gi'
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: svclient
+#   labels:
+#     app.kubernetes.io/name: vendorlist
+#     app.kubernetes.io/component: vl-pod
+#     app.kubernetes.io/service: vlclient
+# spec:
+#   type: LoadBalancer
+#   selector:
+#     app.kubernetes.io/name: vlclient-pod
+#   ports:
+#   - name: portclient
+#     port: 8080
+#     protocol: TCP
+#     targetPort: 3002

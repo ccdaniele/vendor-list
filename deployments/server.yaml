@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vlserver
+  labels:
+    app.kubernetes.io/name: "vendorlist"
+    app.kubernetes.io/part-of: "vl-sandbox"
+    app.kubernetes.io/instance: vl-instance
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "vlserver-deployment"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/service: "vlserver"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "vlserverpod"
+        app.kubernetes.io/component: "vl-pod"
+        app.kubernetes.io/service: "vlserver"
+        admission.datadoghq.com/enabled: "true"
+        tags.datadoghq.com/env: "dev"
+        tags.datadoghq.com/service: "vlserver"
+        tags.datadoghq.com/version: "2.0"
+      annotations:
+        admission.datadoghq.com/ruby-lib.version: "v1.14.0"
+    spec:
+      containers:
+      # rails server container
+      - name: server
+        image: ccdaniele/vl-server:v1.0.0-dd-sql
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            cpu: '500m'
+            memory: '1Gi'
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svcserver
+  labels:
+    app.kubernetes.io/name: "vendorlist"
+    app.kubernetes.io/component: "vl-service"
+    app.kubernetes.io/service: "vlserver"
+spec:
+  selector:
+    app.kubernetes.io/name: "vlserverpod"
+  ports:
+  - port: 3000
+    protocol: TCP
+    targetPort: 3000
+
+

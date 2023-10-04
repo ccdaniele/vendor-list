@@ -1,0 +1,6 @@
+FROM postgres
+ENV POSTGRES_DB vldb
+ENV POSTGRES_USER vendorlist
+ENV POSTGRES_PASSWORD password
+
+EXPOSE 5432
